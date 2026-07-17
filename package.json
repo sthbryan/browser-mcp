@@ -11,7 +11,7 @@
     "name": "sthbryan",
     "url": "https://justcallmebryan.com"
   },
-  "description": "MCP server for browser automation via Playwright/Chromium — screenshots, viewport templates, and page tools",
+  "description": "MCP server for browser automation via Playwright/Chromium — screenshots, fetch_page, search, and viewport templates",
   "main": "./dist/index.js",
   "bin": {
     "browser-mcp": "./dist/index.js"
@@ -32,6 +32,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.3",
     "@types/bun": "latest",
+    "@types/turndown": "^5.0.6",
     "lefthook": "2.1.10"
   },
   "peerDependencies": {
@@ -39,7 +40,9 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
+    "node-html-parser": "^9.0.0",
     "playwright": "1.54.2",
+    "turndown": "^7.2.4",
     "zod": "4.4.3"
   },
   "keywords": [
