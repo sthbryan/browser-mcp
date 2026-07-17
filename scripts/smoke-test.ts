@@ -84,9 +84,7 @@ try {
     1
   );
 
-  proc.stdin?.write(
-    `${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`
-  );
+  proc.stdin?.write(`${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`);
 
   const list = await call(proc, "tools/list", undefined, 2);
   const tools = (list.result as { tools: Array<{ name: string }> }).tools;

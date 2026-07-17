@@ -109,9 +109,7 @@ async function scrapeDuckDuckGo(page: Page): Promise<RawSearchHit[]> {
 
 async function scrapeBing(page: Page): Promise<RawSearchHit[]> {
   // Wait up to a few seconds for organic results if the shell is already there.
-  await page
-    .waitForSelector("li.b_algo h2 a, #b_results h2 a", { timeout: 5_000 })
-    .catch(() => {});
+  await page.waitForSelector("li.b_algo h2 a, #b_results h2 a", { timeout: 5_000 }).catch(() => {});
 
   const raw = await page.evaluate(() => {
     const out: Array<{ title: string; href: string; cite?: string; snippet?: string }> = [];

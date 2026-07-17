@@ -5,7 +5,7 @@
  * if Chromium is missing, tools fail with a clear install message.
  */
 
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { DESKTOP_USER_AGENT, type ViewportSpec } from "./devices";
 
 const DEFAULT_NAV_TIMEOUT_MS = 30_000;
