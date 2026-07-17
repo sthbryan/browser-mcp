@@ -105,6 +105,8 @@ Local clone:
 }
 ```
 
+See [INSTALL.md](./INSTALL.md) for more clients.
+
 ## Architecture
 
 ```
@@ -125,6 +127,7 @@ MCP Client ──stdio──► browser-mcp (--tools=…)
 bun install
 bun run playwright:install
 bun test
+bun run smoke
 bun run lint
 bun run build
 ```

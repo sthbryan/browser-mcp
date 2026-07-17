@@ -12,3 +12,8 @@ playwright-report/
 .playwright/
 *.png
 !docs/**/*.png
+
+# Local design / session notes — never commit
+PLAN.md
+SESSION.md
+SESION.md
