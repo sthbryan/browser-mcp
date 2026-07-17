@@ -1,12 +1,13 @@
 #!/usr/bin/env bun
 /**
- * Smoke test: boots the MCP server, lists tools, calls screenshot.
+ * Smoke test: boots the MCP server, lists tools, calls each implemented one.
  *
  * Usage:
  *   bun run scripts/smoke-test.ts
  */
 
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 interface JsonRpcResponse {
   jsonrpc: "2.0";
@@ -57,12 +58,13 @@ function call(
     setTimeout(() => {
       proc.stdout?.off("data", onData);
       reject(new Error(`timeout waiting for ${method}`));
-    }, 60_000);
+    }, 90_000);
   });
 }
 
-const proc = spawn("bun", ["run", "src/index.ts", "--tools=screenshot"], {
-  cwd: new URL("..", import.meta.url).pathname,
+const cwd = fileURLToPath(new URL("..", import.meta.url));
+const proc = spawn("bun", ["run", "src/index.ts"], {
+  cwd,
   stdio: ["pipe", "pipe", "pipe"],
 });
 
@@ -71,22 +73,27 @@ proc.stderr?.on("data", (c) => {
 });
 
 try {
-  await call(proc, "initialize", {
-    protocolVersion: "2024-11-05",
-    capabilities: {},
-    clientInfo: { name: "smoke", version: "0.0.0" },
-  }, 1);
+  await call(
+    proc,
+    "initialize",
+    {
+      protocolVersion: "2024-11-05",
+      capabilities: {},
+      clientInfo: { name: "smoke", version: "0.0.0" },
+    },
+    1
+  );
 
-  // required after initialize for many MCP servers
   proc.stdin?.write(
     `${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`
   );
 
   const list = await call(proc, "tools/list", undefined, 2);
   const tools = (list.result as { tools: Array<{ name: string }> }).tools;
-  console.log(`✓ listed tools: ${tools.map((t) => t.name).join(", ")}`);
-  if (!tools.some((t) => t.name === "screenshot")) {
-    throw new Error("screenshot tool missing");
+  const names = tools.map((t) => t.name).sort();
+  console.log(`✓ listed tools: ${names.join(", ")}`);
+  for (const need of ["screenshot", "fetch_page", "search"]) {
+    if (!names.includes(need)) throw new Error(`missing tool: ${need}`);
   }
 
   const shot = await call(
@@ -94,26 +101,57 @@ try {
     "tools/call",
     {
       name: "screenshot",
-      arguments: {
-        url: "https://example.com",
-        template: "mobile",
-        format: "png",
-      },
+      arguments: { url: "https://example.com", template: "mobile", format: "png" },
     },
     3
   );
+  if (shot.error) throw new Error(`screenshot: ${shot.error.message}`);
+  const shotContent = (shot.result as { content: Array<{ type: string }> }).content;
+  if (!shotContent.some((c) => c.type === "image")) throw new Error("screenshot: no image");
+  console.log("✓ screenshot");
 
-  if (shot.error) {
-    throw new Error(shot.error.message);
+  const fetch = await call(
+    proc,
+    "tools/call",
+    {
+      name: "fetch_page",
+      arguments: { url: "https://example.com", type: "text" },
+    },
+    4
+  );
+  if (fetch.error) throw new Error(`fetch_page: ${fetch.error.message}`);
+  const fetchText = JSON.stringify(fetch.result);
+  if (!fetchText.includes("Example Domain") && !fetchText.includes("example")) {
+    console.error(fetchText.slice(0, 400));
+    throw new Error("fetch_page: unexpected body");
   }
+  console.log(`✓ fetch_page (${fetchText.length} bytes)`);
 
-  const content = (shot.result as { content: Array<{ type: string }> }).content;
-  const hasImage = content.some((c) => c.type === "image");
-  console.log(`✓ screenshot content types: ${content.map((c) => c.type).join(", ")}`);
-  if (!hasImage) {
-    console.error(JSON.stringify(shot.result, null, 2).slice(0, 500));
-    throw new Error("expected image content");
+  const search = await call(
+    proc,
+    "tools/call",
+    {
+      name: "search",
+      arguments: { query: "TypeScript language", limit: 3 },
+    },
+    5
+  );
+  if (search.error) throw new Error(`search: ${search.error.message}`);
+  const searchPayload = search.result as {
+    content: Array<{ type: string; text?: string }>;
+  };
+  const searchBody = searchPayload.content.find((c) => c.type === "text")?.text ?? "";
+  const parsed = JSON.parse(searchBody) as {
+    results?: unknown[];
+    error?: string;
+    engine?: string;
+  };
+  if (parsed.error) throw new Error(`search: ${parsed.error}`);
+  if (!Array.isArray(parsed.results)) throw new Error("search: no results array");
+  if (parsed.results.length === 0) {
+    throw new Error("search: zero results (engines blocked or markup changed)");
   }
+  console.log(`✓ search (${parsed.results.length} via ${parsed.engine ?? "?"})`);
 
   console.log("✓ smoke ok");
   proc.kill();
