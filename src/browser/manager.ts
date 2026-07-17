@@ -6,7 +6,7 @@
  */
 
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
-import type { ViewportSpec } from "./devices";
+import { DESKTOP_USER_AGENT, type ViewportSpec } from "./devices";
 
 const DEFAULT_NAV_TIMEOUT_MS = 30_000;
 
@@ -47,7 +47,8 @@ export async function withPage<T>(
     deviceScaleFactor: viewport.deviceScaleFactor,
     isMobile: viewport.isMobile,
     hasTouch: viewport.hasTouch,
-    userAgent: viewport.userAgent,
+    // Always set a non-HeadlessChrome UA (Playwright default is bot-flagged).
+    userAgent: viewport.userAgent ?? DESKTOP_USER_AGENT,
   });
 
   const page = await context.newPage();
