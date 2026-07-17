@@ -18,6 +18,7 @@
       "@/schemas/*": ["./src/schemas/*"],
       "@/types/*": ["./src/types/*"],
       "@/browser/*": ["./src/browser/*"],
+      "@/formatters/*": ["./src/formatters/*"],
       "@/tools/*": ["./src/tools/*"],
       "@/utils/*": ["./src/utils/*"]
     }
