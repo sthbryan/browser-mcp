@@ -1,19 +1,34 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { fetchInputSchema } from "@/schemas/fetch";
 import { screenshotInputSchema } from "@/schemas/screenshot";
+import { searchInputSchema } from "@/schemas/search";
+import { createFetchHandler } from "@/tools/fetch";
 import { createScreenshotHandler } from "@/tools/screenshot";
+import { createSearchHandler } from "@/tools/search";
 import type { ToolName } from "@/utils/cli";
-import { ALL_TOOLS } from "@/utils/cli";
+
+const implementedTools = new Set<ToolName>(["screenshot", "fetch_page", "search"]);
 
 /**
- * Register MCP tools. When `enabled` is null/undefined, all known tools register.
+ * Register MCP tools. When `enabled` is null/undefined, all implemented tools register.
  * When set (from --tools=...), only those names are registered.
  *
- * Planned but not yet implemented: fetch_page, query, search (browser-backed).
+ * Planned: query (browser-backed CSS/text extraction).
  */
 export function registerTools(server: McpServer, enabled?: ToolName[] | null): void {
-  const set = new Set<ToolName>(enabled?.length ? enabled : ALL_TOOLS);
+  const requested = enabled?.length ? enabled : [...implementedTools];
+  const set = new Set<ToolName>(requested);
 
-  if (set.has("screenshot")) {
+  if (enabled?.length) {
+    const unimplemented = requested.filter((t) => !implementedTools.has(t));
+    if (unimplemented.length > 0) {
+      console.error(
+        `browser-mcp: tool(s) not implemented yet (skipped): ${unimplemented.join(", ")}`
+      );
+    }
+  }
+
+  if (set.has("screenshot") && implementedTools.has("screenshot")) {
     server.registerTool(
       "screenshot",
       {
@@ -26,23 +41,32 @@ export function registerTools(server: McpServer, enabled?: ToolName[] | null): v
     );
   }
 
-  // Stubs intentionally not registered until implemented.
-  // Agents only see tools that work. Use --tools to limit surface further.
-  if (set.has("fetch_page") || set.has("query") || set.has("search")) {
-    const missing = (["fetch_page", "query", "search"] as const).filter((t) => set.has(t));
-    // Only warn if user explicitly asked for unimplemented tools
-    if (enabled?.length) {
-      const unimplemented = missing.filter((t) => !implementedTools.has(t));
-      if (unimplemented.length > 0) {
-        console.error(
-          `browser-mcp: tool(s) not implemented yet (skipped): ${unimplemented.join(", ")}`
-        );
-      }
-    }
+  if (set.has("fetch_page") && implementedTools.has("fetch_page")) {
+    server.registerTool(
+      "fetch_page",
+      {
+        title: "Fetch Page",
+        description:
+          "Fetch a URL in a real browser (JS rendered) and return html, markdown, or text.",
+        inputSchema: fetchInputSchema,
+      },
+      createFetchHandler()
+    );
+  }
+
+  if (set.has("search") && implementedTools.has("search")) {
+    server.registerTool(
+      "search",
+      {
+        title: "Search",
+        description:
+          "Search the web via DuckDuckGo HTML rendered in Chromium. Returns titles and URLs.",
+        inputSchema: searchInputSchema,
+      },
+      createSearchHandler()
+    );
   }
 }
-
-const implementedTools = new Set<ToolName>(["screenshot"]);
 
 export function listImplementedTools(): ToolName[] {
   return [...implementedTools];
