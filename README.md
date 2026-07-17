@@ -23,11 +23,25 @@ Templates: `mobile` (390×844), `tablet` (768×1024), `desktop` (1440×900), `cu
 
 Returns an MCP **image** content block plus JSON metadata.
 
+### `fetch_page`
+
+Fetch a URL **after JS render** (Playwright) as `html`, `markdown`, or `text`.
+
+```json
+{ "url": "https://example.com", "type": "markdown", "template": "desktop" }
+```
+
+### `search`
+
+Web search via DuckDuckGo HTML rendered in Chromium.
+
+```json
+{ "query": "rust headless browser", "limit": 5 }
+```
+
 ### Planned
 
-- `fetch_page` — HTML / markdown / text after real layout + JS  
-- `query` — CSS / text extraction  
-- `search` — TBD  
+- `query` — CSS / text extraction after render
 
 ## Tool selection
 
