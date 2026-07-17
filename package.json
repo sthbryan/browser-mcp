@@ -23,7 +23,6 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "check": "biome check --diagnostic-level=error .",
-    "smoke": "bun run scripts/smoke-test.ts",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
     "postinstall": "[ -d .git ] && lefthook install || true",

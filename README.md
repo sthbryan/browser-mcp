@@ -105,8 +105,6 @@ Local clone:
 }
 ```
 
-See [INSTALL.md](./INSTALL.md) for more clients.
-
 ## Architecture
 
 ```
@@ -121,15 +119,12 @@ MCP Client ──stdio──► browser-mcp (--tools=…)
          (default)              (optional)
 ```
 
-Design notes: [PLAN.md](./PLAN.md) · Session handoff: [SESSION.md](./SESSION.md)
-
 ## Development
 
 ```bash
 bun install
 bun run playwright:install
 bun test
-bun run smoke
 bun run lint
 bun run build
 ```
