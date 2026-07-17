@@ -1,0 +1,11 @@
+pre-commit:
+  commands:
+    lint-fix:
+      run: bun biome check --write {staged_files}
+      glob: "**/*.{ts,tsx,js,jsx,json}"
+
+pre-push:
+  commands:
+    lint-check:
+      run: bun biome check
+      glob: "**/*.{ts,tsx,js,jsx,json}"

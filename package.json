@@ -1,0 +1,55 @@
+{
+  "name": "browser-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sthbryan/browser-mcp"
+  },
+  "author": {
+    "name": "sthbryan",
+    "url": "https://justcallmebryan.com"
+  },
+  "description": "MCP server for browser automation via Playwright/Chromium — screenshots, viewport templates, and page tools",
+  "main": "./dist/index.js",
+  "bin": {
+    "browser-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --external playwright --external playwright-core --external chromium-bidi",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check": "biome check --diagnostic-level=error .",
+    "smoke": "bun run scripts/smoke-test.ts",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "postinstall": "[ -d .git ] && lefthook install || true",
+    "playwright:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.3",
+    "@types/bun": "latest",
+    "lefthook": "2.1.10"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "playwright": "1.54.2",
+    "zod": "4.4.3"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "browser",
+    "screenshot",
+    "playwright",
+    "chromium",
+    "cdp"
+  ],
+  "license": "MIT"
+}
