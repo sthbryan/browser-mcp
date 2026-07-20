@@ -3,8 +3,7 @@ import { citeToUrl, extractRealUrl, normalizeHits } from "./parse";
 
 describe("extractRealUrl", () => {
   test("unwraps uddg param", () => {
-    const wrapped =
-      "https://duckduckgo.com/l/?uddg=" + encodeURIComponent("https://example.com/page");
+    const wrapped = `https://duckduckgo.com/l/?uddg=${encodeURIComponent("https://example.com/page")}`;
     expect(extractRealUrl(wrapped)).toBe("https://example.com/page");
   });
 
@@ -40,5 +39,17 @@ describe("normalizeHits", () => {
       { title: "A", url: "https://a.example" },
       { title: "B", url: "https://b.example", snippet: "hi" },
     ]);
+  });
+
+  test("skips non-http hrefs", () => {
+    expect(
+      normalizeHits(
+        [
+          { title: "x", href: "javascript:void(0)" },
+          { title: "ok", href: "https://ok.example" },
+        ],
+        5
+      )
+    ).toEqual([{ title: "ok", url: "https://ok.example" }]);
   });
 });
