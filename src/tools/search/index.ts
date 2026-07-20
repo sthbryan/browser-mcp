@@ -4,30 +4,32 @@ import type {
   ServerNotification,
   ServerRequest,
 } from "@modelcontextprotocol/sdk/types";
-import type { Page } from "playwright";
+import type { Page } from "puppeteer-core";
 import { DEVICE_TEMPLATES } from "@/browser/devices";
 import { withPage } from "@/browser/manager";
+import { sleep } from "@/browser/wait";
 import type { SearchInput, SearchResult } from "@/types/search";
-import { citeToUrl, extractRealUrl, normalizeHits, type RawSearchHit } from "./parse";
+import { normalizeHits, type RawSearchHit } from "./parse";
 
-/**
- * Search engines to try in order. DDG HTML matches obscura-mcp; Bing is a
- * headless-friendly fallback when DDG serves a bot challenge.
- */
 const ENGINES: Array<{
   name: string;
   buildUrl: (query: string) => string;
   scrape: (page: Page) => Promise<RawSearchHit[]>;
 }> = [
   {
+    name: "duckduckgo-lite",
+    buildUrl: (q) => `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(q)}`,
+    scrape: scrapeDuckDuckGoLite,
+  },
+  {
     name: "duckduckgo",
     buildUrl: (q) => `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`,
     scrape: scrapeDuckDuckGo,
   },
   {
-    name: "bing",
-    buildUrl: (q) => `https://www.bing.com/search?q=${encodeURIComponent(q)}&setlang=en`,
-    scrape: scrapeBing,
+    name: "brave",
+    buildUrl: (q) => `https://search.brave.com/search?q=${encodeURIComponent(q)}`,
+    scrape: scrapeBrave,
   },
 ];
 
@@ -44,8 +46,13 @@ export function createSearchHandler() {
         for (const engine of ENGINES) {
           const url = engine.buildUrl(args.query);
           await page.goto(url, { waitUntil: "domcontentloaded" });
-          // brief settle for late result injection
-          await page.waitForTimeout(800);
+          await sleep(800);
+
+          if (await isSearchBlocked(page)) {
+            last = [];
+            used = engine.name;
+            continue;
+          }
 
           const hits = await engine.scrape(page);
           const normalized = normalizeHits(hits, args.limit);
@@ -66,7 +73,7 @@ export function createSearchHandler() {
             text: JSON.stringify(
               {
                 query: args.query,
-                source: "playwright",
+                source: "puppeteer",
                 engine,
                 results,
               },
@@ -84,6 +91,50 @@ export function createSearchHandler() {
       };
     }
   };
+}
+
+async function isSearchBlocked(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const text = document.body?.innerText || "";
+    if (
+      text.includes("Unfortunately, bots use DuckDuckGo") ||
+      text.includes("If this persists, please email us") ||
+      text.includes("Please solve the challenge") ||
+      text.includes("Verification required")
+    ) {
+      return true;
+    }
+    return Boolean(
+      document.querySelector(
+        "#challenge-form, .anomaly-modal__modal, form[action*='anomaly'], #b_captchachallenge"
+      )
+    );
+  });
+}
+
+async function scrapeDuckDuckGoLite(page: Page): Promise<RawSearchHit[]> {
+  return page.evaluate(() => {
+    const out: Array<{ title: string; href: string; snippet?: string }> = [];
+    const links = document.querySelectorAll("a.result-link");
+
+    for (const a of Array.from(links)) {
+      const el = a as HTMLAnchorElement;
+      const title = (el.textContent || "").trim();
+      const href = el.href;
+      if (!title || !href) continue;
+
+      const row = el.closest("tr");
+      const next = row?.nextElementSibling;
+      const snippetEl =
+        next?.querySelector(".result-snippet") ||
+        row?.parentElement?.querySelector(".result-snippet");
+      const snippet = snippetEl?.textContent?.trim() || undefined;
+
+      out.push({ title, href, snippet });
+    }
+
+    return out;
+  });
 }
 
 async function scrapeDuckDuckGo(page: Page): Promise<RawSearchHit[]> {
@@ -107,38 +158,29 @@ async function scrapeDuckDuckGo(page: Page): Promise<RawSearchHit[]> {
   });
 }
 
-async function scrapeBing(page: Page): Promise<RawSearchHit[]> {
-  // Wait up to a few seconds for organic results if the shell is already there.
-  await page.waitForSelector("li.b_algo h2 a, #b_results h2 a", { timeout: 5_000 }).catch(() => {});
+async function scrapeBrave(page: Page): Promise<RawSearchHit[]> {
+  await page
+    .waitForSelector('.snippet[data-type="web"] a[href^="http"]', { timeout: 8_000 })
+    .catch(() => {});
 
-  const raw = await page.evaluate(() => {
-    const out: Array<{ title: string; href: string; cite?: string; snippet?: string }> = [];
-    const items = document.querySelectorAll("li.b_algo, #b_results > li");
+  return page.evaluate(() => {
+    const out: Array<{ title: string; href: string; snippet?: string }> = [];
+    const cards = document.querySelectorAll('.snippet[data-type="web"]');
 
-    for (const li of Array.from(items)) {
-      const a = li.querySelector("h2 a") as HTMLAnchorElement | null;
+    for (const card of Array.from(cards)) {
+      const a = card.querySelector("a[href^='http']") as HTMLAnchorElement | null;
       if (!a?.href) continue;
-      const cite = li.querySelector("cite")?.textContent?.trim();
-      const snippet = li
-        .querySelector(".b_caption p, .b_lineclamp2, .b_algoSlug, .b_caption")
+      if (a.href.includes("search.brave.com")) continue;
+
+      const titleEl = card.querySelector(".title, a");
+      const title = (titleEl?.textContent || a.textContent || "").trim();
+      const snippet = card
+        .querySelector(".snippet-description, .description, p")
         ?.textContent?.trim();
-      out.push({
-        title: (a.textContent || "").trim(),
-        href: a.href,
-        cite,
-        snippet,
-      });
+
+      if (!title) continue;
+      out.push({ title, href: a.href, snippet });
     }
     return out;
-  });
-
-  return raw.map((hit) => {
-    const fromCite = citeToUrl(hit.cite);
-    const href = fromCite || extractRealUrl(hit.href);
-    return {
-      title: hit.title,
-      href,
-      snippet: hit.snippet,
-    };
   });
 }

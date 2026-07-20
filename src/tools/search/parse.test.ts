@@ -24,12 +24,13 @@ describe("citeToUrl", () => {
 });
 
 describe("normalizeHits", () => {
-  test("dedupes, strips ddg, respects limit", () => {
+  test("dedupes, strips engine urls, respects limit", () => {
     const results = normalizeHits(
       [
         { title: "A", href: "https://a.example" },
         { title: "A2", href: "https://a.example" },
         { title: "DDG", href: "https://duckduckgo.com/foo" },
+        { title: "Brave", href: "https://search.brave.com/search?q=x" },
         { title: "B", href: "https://b.example", snippet: " hi " },
         { title: "C", href: "https://c.example" },
       ],

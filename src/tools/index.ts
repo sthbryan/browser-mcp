@@ -60,7 +60,7 @@ export function registerTools(server: McpServer, enabled?: ToolName[] | null): v
       {
         title: "Query",
         description:
-          "Extract specific data from a JS-rendered page using CSS selectors and/or text filters. Optionally read HTML attributes (href, src, …).",
+          "Extract specific data from a JS-rendered page using CSS selectors and/or text filters. Optionally read HTML attributes (href, src, ...).",
         inputSchema: queryInputSchema,
       },
       createQueryHandler()
@@ -73,7 +73,7 @@ export function registerTools(server: McpServer, enabled?: ToolName[] | null): v
       {
         title: "Search",
         description:
-          "Search the web via DuckDuckGo HTML rendered in Chromium. Returns titles and URLs.",
+          "Search the web via Puppeteer stealth (DuckDuckGo Lite → HTML → Brave). Returns titles and URLs.",
         inputSchema: searchInputSchema,
       },
       createSearchHandler()

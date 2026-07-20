@@ -56,7 +56,13 @@ export function normalizeHits(hits: RawSearchHit[], limit: number): SearchResult
 
     const url = extractRealUrl(href);
     if (seen.has(url)) continue;
-    if (url.includes("duckduckgo.com")) continue;
+    if (
+      url.includes("duckduckgo.com") ||
+      url.includes("search.brave.com") ||
+      url.includes("bing.com/search")
+    ) {
+      continue;
+    }
 
     seen.add(url);
     results.push({
