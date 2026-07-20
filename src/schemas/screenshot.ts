@@ -25,7 +25,7 @@ export const screenshotInputSchema = z
     waitUntil: z
       .enum(["load", "domcontentloaded", "networkidle", "commit"])
       .default("load")
-      .describe("Playwright navigation wait condition"),
+      .describe("Navigation wait condition"),
     selector: z
       .string()
       .optional()

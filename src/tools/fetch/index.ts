@@ -5,7 +5,8 @@ import type {
   ServerRequest,
 } from "@modelcontextprotocol/sdk/types";
 import { resolveViewport } from "@/browser/devices";
-import { withPage } from "@/browser/manager";
+import { getResolvedBrowserInfo, withPage } from "@/browser/manager";
+import { mapWaitUntil } from "@/browser/wait";
 import { format } from "@/formatters";
 import { sanitizeWhitespace } from "@/formatters/clean";
 import type { FetchInput } from "@/types/fetch";
@@ -27,7 +28,7 @@ export function createFetchHandler() {
       });
 
       const { content, finalUrl, title } = await withPage(viewport, async (page) => {
-        await page.goto(args.url, { waitUntil: args.waitUntil });
+        await page.goto(args.url, { waitUntil: mapWaitUntil(args.waitUntil) });
         const html = await page.content();
         const formatted = await format(args.type as FormatterType, html);
         return {
@@ -36,6 +37,8 @@ export function createFetchHandler() {
           title: await page.title(),
         };
       });
+
+      const browserInfo = getResolvedBrowserInfo();
 
       return {
         content: [
@@ -48,7 +51,10 @@ export function createFetchHandler() {
                 title,
                 type: args.type,
                 template: args.template,
-                source: "playwright",
+                source: "puppeteer",
+                browser: browserInfo
+                  ? { name: browserInfo.name, source: browserInfo.source }
+                  : null,
                 length: content.length,
                 content,
               },

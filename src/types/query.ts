@@ -7,7 +7,7 @@ export interface QueryMatchPayload {
   url: string;
   finalUrl: string;
   title: string;
-  source: "playwright";
+  source: "puppeteer";
   selector: string | null;
   selector_used: string;
   text: string | null;

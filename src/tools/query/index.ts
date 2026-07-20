@@ -4,9 +4,10 @@ import type {
   ServerNotification,
   ServerRequest,
 } from "@modelcontextprotocol/sdk/types";
-import type { Page } from "playwright";
+import type { Page } from "puppeteer-core";
 import { resolveViewport } from "@/browser/devices";
 import { withPage } from "@/browser/manager";
+import { mapWaitUntil } from "@/browser/wait";
 import type { QueryInput } from "@/types/query";
 import { validateNavigationUrl } from "@/utils/ssrf";
 import { DEFAULT_CONTENT_SELECTORS, finalizeMatches } from "./extract";
@@ -35,14 +36,12 @@ export function createQueryHandler() {
       const selectorUsed = args.selector ?? DEFAULT_CONTENT_SELECTORS;
 
       const { values, finalUrl, title } = await withPage(viewport, async (page) => {
-        await page.goto(args.url, { waitUntil: args.waitUntil });
+        await page.goto(args.url, { waitUntil: mapWaitUntil(args.waitUntil) });
 
         if (args.waitFor) {
-          await page.waitForSelector(args.waitFor, { state: "attached", timeout: 15_000 });
+          await page.waitForSelector(args.waitFor, { timeout: 15_000 });
         } else if (args.selector) {
-          await page
-            .waitForSelector(args.selector, { state: "attached", timeout: 8_000 })
-            .catch(() => {});
+          await page.waitForSelector(args.selector, { timeout: 8_000 }).catch(() => {});
         }
 
         const values = await collectFromPage(page, {
@@ -71,7 +70,7 @@ export function createQueryHandler() {
                 url: args.url,
                 finalUrl,
                 title,
-                source: "playwright",
+                source: "puppeteer",
                 selector: args.selector ?? null,
                 selector_used: selectorUsed,
                 text: args.text ?? null,
@@ -98,7 +97,7 @@ async function collectFromPage(
   opts: { selector: string; attribute?: string }
 ): Promise<string[]> {
   return page.evaluate(
-    ({ selector, attribute }) => {
+    (selector: string, attribute: string | null) => {
       let nodes: Element[];
       try {
         nodes = Array.from(document.querySelectorAll(selector));
@@ -118,7 +117,8 @@ async function collectFromPage(
       }
       return out;
     },
-    { selector: opts.selector, attribute: opts.attribute ?? null }
+    opts.selector,
+    opts.attribute ?? null
   );
 }
 

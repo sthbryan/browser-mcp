@@ -30,7 +30,7 @@ export const queryInputSchema = z
     waitUntil: z
       .enum(["load", "domcontentloaded", "networkidle", "commit"])
       .default("load")
-      .describe("Playwright navigation wait condition"),
+      .describe("Navigation wait condition"),
     waitFor: z
       .string()
       .min(1)

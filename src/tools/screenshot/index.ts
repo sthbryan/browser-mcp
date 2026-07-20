@@ -5,7 +5,8 @@ import type {
   ServerRequest,
 } from "@modelcontextprotocol/sdk/types";
 import { resolveViewport } from "@/browser/devices";
-import { withPage } from "@/browser/manager";
+import { getResolvedBrowserInfo, withPage } from "@/browser/manager";
+import { mapWaitUntil } from "@/browser/wait";
 import type { ScreenshotInput } from "@/types/screenshot";
 import { validateNavigationUrl } from "@/utils/ssrf";
 
@@ -26,24 +27,26 @@ export function createScreenshotHandler() {
 
       const { buffer, meta } = await withPage(viewport, async (page) => {
         if (args.darkMode) {
-          await page.emulateMedia({ colorScheme: "dark" });
+          await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
         }
 
-        await page.goto(args.url, { waitUntil: args.waitUntil });
+        await page.goto(args.url, { waitUntil: mapWaitUntil(args.waitUntil) });
 
         const screenshotOpts = {
           type: args.format,
           fullPage: args.selector ? false : args.fullPage,
+          encoding: "binary" as const,
           ...(args.format === "jpeg" ? { quality: args.quality ?? 80 } : {}),
-        } as const;
+        };
 
         let buffer: Buffer;
         if (args.selector) {
-          const el = page.locator(args.selector).first();
-          await el.waitFor({ state: "visible" });
-          buffer = await el.screenshot(screenshotOpts);
+          await page.waitForSelector(args.selector, { visible: true });
+          const el = await page.$(args.selector);
+          if (!el) throw new Error(`Selector not found: ${args.selector}`);
+          buffer = Buffer.from(await el.screenshot(screenshotOpts));
         } else {
-          buffer = await page.screenshot(screenshotOpts);
+          buffer = Buffer.from(await page.screenshot(screenshotOpts));
         }
 
         return {
@@ -66,6 +69,7 @@ export function createScreenshotHandler() {
 
       const mimeType = args.format === "jpeg" ? "image/jpeg" : "image/png";
       const base64 = buffer.toString("base64");
+      const browserInfo = getResolvedBrowserInfo();
 
       return {
         content: [
@@ -80,7 +84,10 @@ export function createScreenshotHandler() {
               {
                 ...meta,
                 bytes: buffer.length,
-                source: "playwright",
+                source: "puppeteer",
+                browser: browserInfo
+                  ? { name: browserInfo.name, source: browserInfo.source }
+                  : null,
               },
               null,
               2
