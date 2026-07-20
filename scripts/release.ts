@@ -48,7 +48,7 @@ const bumpArg = args.find((a) => a !== "--no-push");
 
 const dirty = sh("git status --porcelain");
 if (dirty) {
-  console.error("Working tree is dirty. Commit or stash first:\n" + dirty);
+  console.error(`Working tree is dirty. Commit or stash first:\n${dirty}`);
   process.exit(1);
 }
 
