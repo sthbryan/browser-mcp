@@ -16,12 +16,13 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { closeBrowser } from "@/browser/manager";
 import { registerTools } from "@/tools";
 import { parseCliArgs } from "@/utils/cli";
+import { VERSION } from "@/version";
 
 const { tools } = parseCliArgs();
 
 const server = new McpServer({
   name: "web-search-mcp",
-  version: "0.1.0",
+  version: VERSION,
 });
 
 registerTools(server, tools);
