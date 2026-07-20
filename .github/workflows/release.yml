@@ -69,7 +69,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: npm
-      url: https://www.npmjs.com/package/@sthbryan/web-search-mcp
+      url: https://www.npmjs.com/package/@sthbryan/browser-mcp
     steps:
       - uses: actions/checkout@v4
 

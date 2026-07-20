@@ -1,5 +1,5 @@
 {
-  "name": "@sthbryan/web-search-mcp",
+  "name": "@sthbryan/browser-mcp",
   "version": "0.1.0",
   "type": "module",
   "private": false,
@@ -18,7 +18,7 @@
   "description": "MCP server for browser automation via Puppeteer stealth — system Chrome/Brave/Edge, screenshots, fetch_page, query, search",
   "main": "./dist/index.js",
   "bin": {
-    "web-search-mcp": "./dist/index.js"
+    "browser-mcp": "./dist/index.js"
   },
   "files": [
     "dist",

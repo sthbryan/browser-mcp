@@ -1,4 +1,4 @@
-# Installation Guide — @sthbryan/web-search-mcp
+# Installation Guide — @sthbryan/browser-mcp
 
 ## Prerequisites
 
@@ -11,9 +11,9 @@ No Chromium download is required for normal use.
 ```json
 {
   "mcpServers": {
-    "web-search": {
+    "browser-mcp": {
       "command": "bunx",
-      "args": ["-y", "@sthbryan/web-search-mcp"]
+      "args": ["-y", "@sthbryan/browser-mcp"]
     }
   }
 }
@@ -24,9 +24,9 @@ Or with Node:
 ```json
 {
   "mcpServers": {
-    "web-search": {
+    "browser-mcp": {
       "command": "npx",
-      "args": ["-y", "@sthbryan/web-search-mcp"]
+      "args": ["-y", "@sthbryan/browser-mcp"]
     }
   }
 }
@@ -43,7 +43,7 @@ bun install
 ```json
 {
   "mcpServers": {
-    "web-search": {
+    "browser-mcp": {
       "command": "bun",
       "args": ["run", "/ABS/PATH/browser-mcp/src/index.ts"]
     }
@@ -60,7 +60,7 @@ bun run build
 ```json
 {
   "mcpServers": {
-    "web-search": {
+    "browser-mcp": {
       "command": "node",
       "args": ["/ABS/PATH/browser-mcp/dist/index.js"]
     }
@@ -94,16 +94,16 @@ bun run build
       "command": "bunx",
       "args": ["-y", "obscura-mcp-server"]
     },
-    "web-search": {
+    "browser-mcp": {
       "command": "bunx",
-      "args": ["-y", "@sthbryan/web-search-mcp"]
+      "args": ["-y", "@sthbryan/browser-mcp"]
     }
   }
 }
 ```
 
 - **obscura** — light scrape/text  
-- **web-search** — stealth browser tools (screenshots, JS render, search)
+- **browser-mcp** — stealth browser tools (screenshots, JS render, search)
 
 ## Publish (maintainers)
 

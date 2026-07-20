@@ -74,12 +74,12 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): CliOptions
 }
 
 function printHelpAndExit(): never {
-  console.error(`@sthbryan/web-search-mcp — browser automation (Puppeteer stealth)
+  console.error(`@sthbryan/browser-mcp — browser automation (Puppeteer stealth)
 
 Usage:
-  web-search-mcp [options]
-  bunx @sthbryan/web-search-mcp --tools=screenshot
-  bunx @sthbryan/web-search-mcp --tools=screenshot,fetch_page
+  browser-mcp [options]
+  bunx @sthbryan/browser-mcp --tools=screenshot
+  bunx @sthbryan/browser-mcp --tools=screenshot,fetch_page
 
 Options:
   --tools=<list>   Comma-separated tools to register. Default: all.

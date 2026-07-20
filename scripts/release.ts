@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Create a release tag for @sthbryan/web-search-mcp.
+ * Create a release tag for @sthbryan/browser-mcp.
  *
  * Usage:
  *   bun run release              # tag current package.json version
