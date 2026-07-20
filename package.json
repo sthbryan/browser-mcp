@@ -11,13 +11,13 @@
     "name": "sthbryan",
     "url": "https://justcallmebryan.com"
   },
-  "description": "MCP server for browser automation via Playwright/Chromium — screenshots, fetch_page, query, search, and viewport templates",
+  "description": "MCP server for browser automation via Puppeteer stealth — uses system Chrome/Brave/Edge, screenshots, fetch_page, query, search",
   "main": "./dist/index.js",
   "bin": {
     "browser-mcp": "./dist/index.js"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --external playwright --external playwright-core --external chromium-bidi",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --external puppeteer-core --external puppeteer-extra --external puppeteer-extra-plugin-stealth --external @puppeteer/browsers",
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
     "lint": "biome check .",
@@ -26,22 +26,24 @@
     "smoke": "bun run scripts/smoke-test.ts",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
-    "postinstall": "[ -d .git ] && lefthook install || true",
-    "playwright:install": "playwright install chromium"
+    "postinstall": "[ -d .git ] && lefthook install || true"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
+    "@biomejs/biome": "2.5.4",
     "@types/bun": "latest",
     "@types/turndown": "^5.0.6",
     "lefthook": "2.1.10"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
+    "@puppeteer/browsers": "^3.0.6",
     "node-html-parser": "^9.0.0",
-    "playwright": "1.54.2",
+    "puppeteer-core": "^25.3.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "turndown": "^7.2.4",
     "zod": "4.4.3"
   },
@@ -50,7 +52,8 @@
     "model-context-protocol",
     "browser",
     "screenshot",
-    "playwright",
+    "puppeteer",
+    "stealth",
     "chromium",
     "cdp"
   ],
