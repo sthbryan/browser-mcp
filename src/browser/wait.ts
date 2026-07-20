@@ -10,7 +10,6 @@ export function mapWaitUntil(waitUntil: WaitUntilInput | undefined): PuppeteerWa
       return "networkidle2";
     case "commit":
       return "domcontentloaded";
-    case "load":
     default:
       return "load";
   }
