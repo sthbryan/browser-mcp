@@ -66,7 +66,7 @@ bun run build
 |------|--------|
 | (none) | All implemented tools |
 | `--tools=screenshot` | Only screenshot |
-| `--tools=screenshot,fetch_page` | Subset (unimplemented names are skipped with a stderr warning) |
+| `--tools=screenshot,fetch_page,query` | Subset (unimplemented names are skipped with a stderr warning) |
 
 ## Environment
 

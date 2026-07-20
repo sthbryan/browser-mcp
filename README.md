@@ -39,9 +39,28 @@ Web search via DuckDuckGo HTML rendered in Chromium.
 { "query": "rust headless browser", "limit": 5 }
 ```
 
-### Planned
+### `query`
 
-- `query` — CSS / text extraction after render
+Extract specific data from a **JS-rendered** page with CSS selectors and/or text filters.
+
+```json
+{ "url": "https://example.com", "selector": "h1" }
+```
+
+```json
+{
+  "url": "https://example.com",
+  "selector": "a",
+  "attribute": "href",
+  "limit": 10
+}
+```
+
+```json
+{ "url": "https://example.com", "text": "Example" }
+```
+
+Provide at least one of `selector` or `text`. Optional: `attribute`, `limit`, `template`, `waitUntil`, `waitFor`.
 
 ## Tool selection
 
