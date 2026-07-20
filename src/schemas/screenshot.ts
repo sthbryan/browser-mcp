@@ -14,13 +14,7 @@ export const screenshotInputSchema = z
       .default(false)
       .describe("Capture full scrollable page instead of viewport only"),
     format: z.enum(["png", "jpeg"]).default("png"),
-    quality: z
-      .number()
-      .int()
-      .min(1)
-      .max(100)
-      .optional()
-      .describe("JPEG quality 1–100 (jpeg only)"),
+    quality: z.number().int().min(1).max(100).optional().describe("JPEG quality 1–100 (jpeg only)"),
     deviceScaleFactor: z
       .number()
       .min(0.5)

@@ -35,9 +35,7 @@ function parseToolsList(raw: string): ToolName[] {
 
   const invalid = names.filter((n) => !TOOL_SET.has(n));
   if (invalid.length > 0) {
-    throw new Error(
-      `Unknown tool(s): ${invalid.join(", ")}. Available: ${ALL_TOOLS.join(", ")}`
-    );
+    throw new Error(`Unknown tool(s): ${invalid.join(", ")}. Available: ${ALL_TOOLS.join(", ")}`);
   }
 
   // de-dupe, preserve order
@@ -67,7 +65,6 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): CliOptions
       }
       tools = parseToolsList(next);
       i++;
-      continue;
     }
 
     // ignore unknown flags for now (MCP clients may inject extra args)
