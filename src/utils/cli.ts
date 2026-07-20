@@ -74,7 +74,7 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): CliOptions
 }
 
 function printHelpAndExit(): never {
-  console.error(`browser-mcp — MCP server for browser automation (Playwright/Chromium)
+  console.error(`browser-mcp — MCP server for browser automation (Puppeteer stealth)
 
 Usage:
   browser-mcp [options]
@@ -86,8 +86,8 @@ Options:
                    Available: ${ALL_TOOLS.join(", ")}
   -h, --help       Show this help
 
-No native-fetch fallback: requires Playwright Chromium
-  (run: bun run playwright:install)
+Uses system Chrome/Brave/Edge (headless). Download only as last resort.
+  BROWSER_MCP_EXECUTABLE_PATH, BROWSER_MCP_BROWSER, BROWSER_MCP_ALLOW_DOWNLOAD=0
 `);
   process.exit(0);
 }

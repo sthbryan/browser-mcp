@@ -4,8 +4,11 @@
 
 ```bash
 bun install
-bun run playwright:install   # downloads Chromium for Playwright
 ```
+
+Install a system browser (recommended): **Chrome**, **Brave**, **Edge**, or **Chromium**.
+
+No `playwright:install` / Chromium download is required for normal use.
 
 ## Method 1: bunx (after publish)
 
@@ -14,7 +17,7 @@ bun run playwright:install   # downloads Chromium for Playwright
   "mcpServers": {
     "browser": {
       "command": "bunx",
-      "args": ["-y", "browser-mcp", "--tools=screenshot"]
+      "args": ["-y", "browser-mcp"]
     }
   }
 }
@@ -25,7 +28,7 @@ bun run playwright:install   # downloads Chromium for Playwright
 ```bash
 git clone https://github.com/sthbryan/browser-mcp
 cd browser-mcp
-bun install && bun run playwright:install
+bun install
 ```
 
 ```json
@@ -33,11 +36,7 @@ bun install && bun run playwright:install
   "mcpServers": {
     "browser": {
       "command": "bun",
-      "args": [
-        "run",
-        "/ABS/PATH/browser-mcp/src/index.ts",
-        "--tools=screenshot"
-      ]
+      "args": ["run", "/ABS/PATH/browser-mcp/src/index.ts"]
     }
   }
 }
@@ -54,7 +53,7 @@ bun run build
   "mcpServers": {
     "browser": {
       "command": "node",
-      "args": ["/ABS/PATH/browser-mcp/dist/index.js", "--tools=screenshot"]
+      "args": ["/ABS/PATH/browser-mcp/dist/index.js"]
     }
   }
 }
@@ -64,21 +63,20 @@ bun run build
 
 | Args | Effect |
 |------|--------|
-| (none) | All implemented tools |
+| (none) | All tools |
 | `--tools=screenshot` | Only screenshot |
-| `--tools=screenshot,fetch_page,query` | Subset (unimplemented names are skipped with a stderr warning) |
+| `--tools=screenshot,fetch_page,query` | Subset |
 
 ## Environment
 
 | Variable | Example | Meaning |
 |----------|---------|---------|
-| `BROWSER_MCP_CHANNEL` | `chrome` | Playwright browser channel |
-| `BROWSER_MCP_EXECUTABLE_PATH` | `/usr/bin/chromium` | Explicit binary |
+| `BROWSER_MCP_EXECUTABLE_PATH` | `/usr/bin/chromium` | Force browser binary |
+| `BROWSER_MCP_BROWSER` | `brave` | Prefer chrome/chromium/brave/edge |
+| `BROWSER_MCP_ALLOW_DOWNLOAD` | `0` | Disable last-resort Chrome download |
 | `BROWSER_MCP_ALLOW_PRIVATE` | `1` | Allow localhost / RFC1918 |
 
 ## Pairing with obscura-mcp
-
-Recommended dual setup:
 
 ```json
 {
@@ -88,12 +86,12 @@ Recommended dual setup:
       "args": ["-y", "obscura-mcp-server"]
     },
     "browser": {
-      "command": "bunx",
-      "args": ["-y", "browser-mcp", "--tools=screenshot"]
+      "command": "bun",
+      "args": ["run", "/ABS/PATH/browser-mcp/src/index.ts"]
     }
   }
 }
 ```
 
-- **obscura** — scrape, search, markdown (light)  
-- **browser** — screenshots / visual (Chromium)
+- **obscura** — light scrape/text  
+- **browser** — stealth browser tools (screenshots, JS render, search)

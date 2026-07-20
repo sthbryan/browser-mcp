@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * browser-mcp — MCP server for Playwright/Chromium browser tools.
+ * browser-mcp — MCP server for Puppeteer stealth browser tools.
  *
- * No native-fetch fallback. Requires Playwright Chromium
- * (or BROWSER_MCP_CHANNEL / BROWSER_MCP_EXECUTABLE_PATH).
+ * Uses installed Chrome/Brave/Edge/Chromium (headless). Downloads Chrome
+ * only as last resort (disable with BROWSER_MCP_ALLOW_DOWNLOAD=0).
  *
  * Tool filtering:
  *   browser-mcp --tools=screenshot
