@@ -1,7 +1,3 @@
-/**
- * Viewport / device templates for screenshot and page tools.
- */
-
 export type DeviceTemplate = "mobile" | "tablet" | "desktop" | "custom";
 
 export interface ViewportSpec {
@@ -13,11 +9,9 @@ export interface ViewportSpec {
   userAgent?: string;
 }
 
-/** Realistic Chrome UA — avoids Playwright's default HeadlessChrome fingerprint. */
 export const DESKTOP_USER_AGENT =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
-/** Common presets (logical CSS pixels). */
 export const DEVICE_TEMPLATES: Record<Exclude<DeviceTemplate, "custom">, ViewportSpec> = {
   mobile: {
     width: 390,
