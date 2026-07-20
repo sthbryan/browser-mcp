@@ -104,8 +104,13 @@ try {
     3
   );
   if (shot.error) throw new Error(`screenshot: ${shot.error.message}`);
-  const shotContent = (shot.result as { content: Array<{ type: string }> }).content;
+  const shotContent = (shot.result as { content: Array<{ type: string; text?: string }> }).content;
   if (!shotContent.some((c) => c.type === "image")) throw new Error("screenshot: no image");
+  const shotMetaText = shotContent.find((c) => c.type === "text")?.text ?? "";
+  const shotMeta = JSON.parse(shotMetaText) as { source?: string };
+  if (shotMeta.source !== "puppeteer") {
+    throw new Error(`screenshot: expected source puppeteer, got ${shotMeta.source}`);
+  }
   console.log("✓ screenshot");
 
   const fetch = await call(
@@ -118,9 +123,22 @@ try {
     4
   );
   if (fetch.error) throw new Error(`fetch_page: ${fetch.error.message}`);
-  const fetchText = JSON.stringify(fetch.result);
+  const fetchPayload = fetch.result as {
+    content: Array<{ type: string; text?: string }>;
+  };
+  const fetchBody = fetchPayload.content.find((c) => c.type === "text")?.text ?? "";
+  const fetchParsed = JSON.parse(fetchBody) as {
+    content?: string;
+    source?: string;
+    error?: string;
+  };
+  if (fetchParsed.error) throw new Error(`fetch_page: ${fetchParsed.error}`);
+  if (fetchParsed.source !== "puppeteer") {
+    throw new Error(`fetch_page: expected source puppeteer, got ${fetchParsed.source}`);
+  }
+  const fetchText = fetchParsed.content ?? fetchBody;
   if (!fetchText.includes("Example Domain") && !fetchText.includes("example")) {
-    console.error(fetchText.slice(0, 400));
+    console.error(fetchBody.slice(0, 400));
     throw new Error("fetch_page: unexpected body");
   }
   console.log(`✓ fetch_page (${fetchText.length} bytes)`);
@@ -143,8 +161,12 @@ try {
     result?: string[];
     error?: string;
     count?: number;
+    source?: string;
   };
   if (queryParsed.error) throw new Error(`query: ${queryParsed.error}`);
+  if (queryParsed.source !== "puppeteer") {
+    throw new Error(`query: expected source puppeteer, got ${queryParsed.source}`);
+  }
   if (!Array.isArray(queryParsed.result) || queryParsed.result.length === 0) {
     throw new Error("query: expected h1 matches on example.com");
   }
@@ -173,11 +195,19 @@ try {
     results?: unknown[];
     error?: string;
     engine?: string;
+    source?: string;
   };
   if (parsed.error) throw new Error(`search: ${parsed.error}`);
+  if (parsed.source !== "puppeteer") {
+    throw new Error(`search: expected source puppeteer, got ${parsed.source}`);
+  }
   if (!Array.isArray(parsed.results)) throw new Error("search: no results array");
   if (parsed.results.length === 0) {
     throw new Error("search: zero results (engines blocked or markup changed)");
+  }
+  const engines = new Set(["duckduckgo-lite", "duckduckgo", "brave"]);
+  if (!parsed.engine || !engines.has(parsed.engine)) {
+    throw new Error(`search: unexpected engine ${parsed.engine}`);
   }
   console.log(`✓ search (${parsed.results.length} via ${parsed.engine ?? "?"})`);
 
