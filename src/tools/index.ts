@@ -1,19 +1,19 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { fetchInputSchema } from "@/schemas/fetch";
+import { queryInputSchema } from "@/schemas/query";
 import { screenshotInputSchema } from "@/schemas/screenshot";
 import { searchInputSchema } from "@/schemas/search";
 import { createFetchHandler } from "@/tools/fetch";
+import { createQueryHandler } from "@/tools/query";
 import { createScreenshotHandler } from "@/tools/screenshot";
 import { createSearchHandler } from "@/tools/search";
 import type { ToolName } from "@/utils/cli";
 
-const implementedTools = new Set<ToolName>(["screenshot", "fetch_page", "search"]);
+const implementedTools = new Set<ToolName>(["screenshot", "fetch_page", "query", "search"]);
 
 /**
  * Register MCP tools. When `enabled` is null/undefined, all implemented tools register.
  * When set (from --tools=...), only those names are registered.
- *
- * Planned: query (browser-backed CSS/text extraction).
  */
 export function registerTools(server: McpServer, enabled?: ToolName[] | null): void {
   const requested = enabled?.length ? enabled : [...implementedTools];
@@ -51,6 +51,19 @@ export function registerTools(server: McpServer, enabled?: ToolName[] | null): v
         inputSchema: fetchInputSchema,
       },
       createFetchHandler()
+    );
+  }
+
+  if (set.has("query") && implementedTools.has("query")) {
+    server.registerTool(
+      "query",
+      {
+        title: "Query",
+        description:
+          "Extract specific data from a JS-rendered page using CSS selectors and/or text filters. Optionally read HTML attributes (href, src, …).",
+        inputSchema: queryInputSchema,
+      },
+      createQueryHandler()
     );
   }
 

@@ -11,7 +11,7 @@
     "name": "sthbryan",
     "url": "https://justcallmebryan.com"
   },
-  "description": "MCP server for browser automation via Playwright/Chromium — screenshots, fetch_page, search, and viewport templates",
+  "description": "MCP server for browser automation via Playwright/Chromium — screenshots, fetch_page, query, search, and viewport templates",
   "main": "./dist/index.js",
   "bin": {
     "browser-mcp": "./dist/index.js"

@@ -7,7 +7,7 @@
  *
  * Tool filtering:
  *   browser-mcp --tools=screenshot
- *   browser-mcp --tools=screenshot,fetch_page
+ *   browser-mcp --tools=screenshot,fetch_page,query
  *   browser-mcp            # all implemented tools
  */
 
