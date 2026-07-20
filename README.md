@@ -1,8 +1,10 @@
-# browser-mcp
+# @sthbryan/web-search-mcp
 
 > Model Context Protocol server for **real browser** automation — Puppeteer + stealth, system browsers first.
 
-Sibling to [obscura-mcp-server](https://github.com/sthbryan/obscura-mcp-server): use **Obscura** for light scrape/text; use **browser-mcp** when you need pixels / JS render.
+Sibling to [obscura-mcp-server](https://github.com/sthbryan/obscura-mcp-server): use **Obscura** for light scrape/text; use **web-search-mcp** when you need pixels / JS render / stealth search.
+
+**npm:** [`@sthbryan/web-search-mcp`](https://www.npmjs.com/package/@sthbryan/web-search-mcp)
 
 ## Tools
 
@@ -60,22 +62,32 @@ No Chromium download on install. At runtime, in order:
 
 Always headless + `puppeteer-extra-plugin-stealth`.
 
-## Tool selection
+## Install (MCP client)
+
+```json
+{
+  "mcpServers": {
+    "web-search": {
+      "command": "bunx",
+      "args": ["-y", "@sthbryan/web-search-mcp"]
+    }
+  }
+}
+```
+
+Tool filter:
 
 ```bash
-bunx browser-mcp --tools=screenshot
-bunx browser-mcp --tools=screenshot,fetch_page
-bunx browser-mcp
+bunx @sthbryan/web-search-mcp --tools=screenshot
+bunx @sthbryan/web-search-mcp --tools=search,query
 ```
+
+See [INSTALL.md](./INSTALL.md).
 
 ## Requirements
 
 - Node 18+ or Bun  
-- A Chromium-based browser installed (**recommended**), e.g. Chrome / Brave / Edge  
-
-```bash
-bun install
-```
+- A Chromium-based browser installed (**recommended**): Chrome / Brave / Edge  
 
 ```bash
 export BROWSER_MCP_BROWSER=brave
@@ -84,25 +96,25 @@ export BROWSER_MCP_ALLOW_DOWNLOAD=0
 export BROWSER_MCP_ALLOW_PRIVATE=1
 ```
 
-## Install (MCP client)
+## Release / publish
 
-```json
-{
-  "mcpServers": {
-    "browser": {
-      "command": "bun",
-      "args": ["run", "/path/to/browser-mcp/src/index.ts"]
-    }
-  }
-}
+CI (same pattern as obscura): on every PR/`main` push → lint, test, smoke, build.  
+On tag `v*` → publish to npm + GitHub Release.
+
+```bash
+# 1) Ensure GitHub secret NPM_TOKEN (classic publish token for @sthbryan)
+# 2) From a clean main branch:
+bun run release          # tags current package.json (0.1.0) and pushes
+bun run release patch    # bump + tag + push
+bun run release --no-push
 ```
 
-See [INSTALL.md](./INSTALL.md).
+Tag must match `package.json` version (e.g. `v0.1.0` ↔ `0.1.0`).
 
 ## Architecture
 
 ```
-MCP Client ──stdio──► browser-mcp
+MCP Client ──stdio──► web-search-mcp
                           │
                           ▼
               resolve system browser
@@ -124,7 +136,7 @@ MCP Client ──stdio──► browser-mcp
 bun install
 bun test
 bun run smoke
-bun run lint
+bun run check
 bun run build
 ```
 

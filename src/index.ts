@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * browser-mcp — MCP server for Puppeteer stealth browser tools.
+ * @sthbryan/web-search-mcp — Puppeteer stealth browser MCP tools.
  *
  * Uses installed Chrome/Brave/Edge/Chromium (headless). Downloads Chrome
  * only as last resort (disable with BROWSER_MCP_ALLOW_DOWNLOAD=0).
  *
  * Tool filtering:
- *   browser-mcp --tools=screenshot
- *   browser-mcp --tools=screenshot,fetch_page,query
- *   browser-mcp            # all implemented tools
+ *   web-search-mcp --tools=screenshot
+ *   web-search-mcp --tools=screenshot,fetch_page,query
+ *   web-search-mcp            # all implemented tools
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -20,7 +20,7 @@ import { parseCliArgs } from "@/utils/cli";
 const { tools } = parseCliArgs();
 
 const server = new McpServer({
-  name: "browser-mcp",
+  name: "web-search-mcp",
   version: "0.1.0",
 });
 
@@ -29,7 +29,7 @@ registerTools(server, tools);
 const transport = new StdioServerTransport();
 await server.connect(transport);
 console.error(
-  `browser-mcp running on stdio${tools ? ` (tools: ${tools.join(",")})` : " (all tools)"}`
+  `web-search-mcp running on stdio${tools ? ` (tools: ${tools.join(",")})` : " (all tools)"}`
 );
 
 async function shutdown() {
