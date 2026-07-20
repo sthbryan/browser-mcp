@@ -1,5 +1,5 @@
 {
-  "name": "browser-mcp",
+  "name": "@sthbryan/web-search-mcp",
   "version": "0.1.0",
   "type": "module",
   "private": false,
@@ -7,14 +7,30 @@
     "type": "git",
     "url": "https://github.com/sthbryan/browser-mcp"
   },
+  "homepage": "https://github.com/sthbryan/browser-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/sthbryan/browser-mcp/issues"
+  },
   "author": {
     "name": "sthbryan",
     "url": "https://justcallmebryan.com"
   },
-  "description": "MCP server for browser automation via Puppeteer stealth — uses system Chrome/Brave/Edge, screenshots, fetch_page, query, search",
+  "description": "MCP server for browser automation via Puppeteer stealth — system Chrome/Brave/Edge, screenshots, fetch_page, query, search",
   "main": "./dist/index.js",
   "bin": {
-    "browser-mcp": "./dist/index.js"
+    "web-search-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "INSTALL.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target node --external puppeteer-core --external puppeteer-extra --external puppeteer-extra-plugin-stealth --external @puppeteer/browsers",
@@ -26,6 +42,8 @@
     "smoke": "bun run scripts/smoke-test.ts",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
+    "prepublishOnly": "bun run build",
+    "release": "bun run scripts/release.ts",
     "postinstall": "[ -d .git ] && lefthook install || true"
   },
   "devDependencies": {
@@ -54,8 +72,8 @@
     "screenshot",
     "puppeteer",
     "stealth",
-    "chromium",
-    "cdp"
+    "web-search",
+    "duckduckgo"
   ],
   "license": "MIT"
 }
