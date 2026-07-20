@@ -90,7 +90,7 @@ try {
   const tools = (list.result as { tools: Array<{ name: string }> }).tools;
   const names = tools.map((t) => t.name).sort();
   console.log(`✓ listed tools: ${names.join(", ")}`);
-  for (const need of ["screenshot", "fetch_page", "search"]) {
+  for (const need of ["screenshot", "fetch_page", "query", "search"]) {
     if (!names.includes(need)) throw new Error(`missing tool: ${need}`);
   }
 
@@ -125,6 +125,36 @@ try {
   }
   console.log(`✓ fetch_page (${fetchText.length} bytes)`);
 
+  const query = await call(
+    proc,
+    "tools/call",
+    {
+      name: "query",
+      arguments: { url: "https://example.com", selector: "h1" },
+    },
+    5
+  );
+  if (query.error) throw new Error(`query: ${query.error.message}`);
+  const queryPayload = query.result as {
+    content: Array<{ type: string; text?: string }>;
+  };
+  const queryBody = queryPayload.content.find((c) => c.type === "text")?.text ?? "";
+  const queryParsed = JSON.parse(queryBody) as {
+    result?: string[];
+    error?: string;
+    count?: number;
+  };
+  if (queryParsed.error) throw new Error(`query: ${queryParsed.error}`);
+  if (!Array.isArray(queryParsed.result) || queryParsed.result.length === 0) {
+    throw new Error("query: expected h1 matches on example.com");
+  }
+  const joined = queryParsed.result.join(" ");
+  if (!/example/i.test(joined)) {
+    console.error(queryBody.slice(0, 400));
+    throw new Error("query: unexpected h1 content");
+  }
+  console.log(`✓ query (${queryParsed.count ?? queryParsed.result.length} match(es))`);
+
   const search = await call(
     proc,
     "tools/call",
@@ -132,7 +162,7 @@ try {
       name: "search",
       arguments: { query: "TypeScript language", limit: 3 },
     },
-    5
+    6
   );
   if (search.error) throw new Error(`search: ${search.error.message}`);
   const searchPayload = search.result as {
