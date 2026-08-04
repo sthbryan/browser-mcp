@@ -1,10 +1,10 @@
-# @sthbryan/web-search-mcp
+# @sthbryan/browser-mcp
 
 > Model Context Protocol server for **real browser** automation — Puppeteer + stealth, system browsers first.
 
-Sibling to [obscura-mcp-server](https://github.com/sthbryan/obscura-mcp-server): use **Obscura** for light scrape/text; use **web-search-mcp** when you need pixels / JS render / stealth search.
+Sibling to [obscura-mcp-server](https://github.com/sthbryan/obscura-mcp-server): use **Obscura** for light scrape/text; use **browser-mcp** when you need pixels / JS render / stealth search.
 
-**npm:** [`@sthbryan/web-search-mcp`](https://www.npmjs.com/package/@sthbryan/web-search-mcp)
+**npm:** [`@sthbryan/browser-mcp`](https://www.npmjs.com/package/@sthbryan/browser-mcp)
 
 ## Tools
 
@@ -67,9 +67,9 @@ Always headless + `puppeteer-extra-plugin-stealth`.
 ```json
 {
   "mcpServers": {
-    "web-search": {
+    "browser-mcp": {
       "command": "bunx",
-      "args": ["-y", "@sthbryan/web-search-mcp"]
+      "args": ["-y", "@sthbryan/browser-mcp"]
     }
   }
 }
@@ -78,8 +78,8 @@ Always headless + `puppeteer-extra-plugin-stealth`.
 Tool filter:
 
 ```bash
-bunx @sthbryan/web-search-mcp --tools=screenshot
-bunx @sthbryan/web-search-mcp --tools=search,query
+bunx @sthbryan/browser-mcp --tools=screenshot
+bunx @sthbryan/browser-mcp --tools=search,query
 ```
 
 See [INSTALL.md](./INSTALL.md).
@@ -95,6 +95,8 @@ export BROWSER_MCP_EXECUTABLE_PATH=/path/to/chrome
 export BROWSER_MCP_ALLOW_DOWNLOAD=0
 export BROWSER_MCP_ALLOW_PRIVATE=1
 ```
+
+`BROWSER_MCP_ALLOW_PRIVATE` defaults to `0` (blocks `localhost` / RFC1918 to prevent SSRF via prompt injection). Set to `1` for local dev. Both toggles can also be passed as CLI flags (`--allow-private` / `--no-allow-download`) and take precedence over env vars. See [INSTALL.md](./INSTALL.md).
 
 ## Release / publish
 
@@ -114,7 +116,7 @@ Tag must match `package.json` version (e.g. `v0.1.0` ↔ `0.1.0`).
 ## Architecture
 
 ```
-MCP Client ──stdio──► web-search-mcp
+MCP Client ──stdio──► browser-mcp
                           │
                           ▼
               resolve system browser
