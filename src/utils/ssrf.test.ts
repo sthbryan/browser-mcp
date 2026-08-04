@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { __resetRuntimeConfig, applyRuntimeConfig } from "@/config";
 import { assertPublicHttpUrl, validateNavigationUrl } from "./ssrf";
 
 describe("assertPublicHttpUrl", () => {
@@ -21,14 +22,17 @@ describe("assertPublicHttpUrl", () => {
 });
 
 describe("validateNavigationUrl", () => {
-  test("allows private when env override set", () => {
-    const prev = process.env.BROWSER_MCP_ALLOW_PRIVATE;
-    process.env.BROWSER_MCP_ALLOW_PRIVATE = "1";
+  test("allows private when config override set", () => {
+    applyRuntimeConfig({ allowPrivate: true });
     try {
       expect(() => validateNavigationUrl("http://localhost:8080")).not.toThrow();
     } finally {
-      if (prev === undefined) delete process.env.BROWSER_MCP_ALLOW_PRIVATE;
-      else process.env.BROWSER_MCP_ALLOW_PRIVATE = prev;
+      __resetRuntimeConfig();
     }
+  });
+
+  test("blocks private when config override off (default)", () => {
+    __resetRuntimeConfig();
+    expect(() => validateNavigationUrl("http://localhost:8080")).toThrow(/Blocked/);
   });
 });

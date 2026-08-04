@@ -5,6 +5,7 @@ import type { Browser, Page } from "puppeteer-core";
 import puppeteerCore from "puppeteer-core";
 import { addExtra } from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { getRuntimeConfig } from "@/config";
 import { type DetectedBrowser, resolveBrowserExecutable } from "./detect";
 import { DESKTOP_USER_AGENT, type ViewportSpec } from "./devices";
 
@@ -26,9 +27,7 @@ function launchArgs(): string[] {
 }
 
 function downloadAllowed(): boolean {
-  const v = process.env.BROWSER_MCP_ALLOW_DOWNLOAD;
-  if (v === "0" || v === "false") return false;
-  return true;
+  return getRuntimeConfig().allowDownload;
 }
 
 async function downloadChromeLastResort(): Promise<DetectedBrowser> {
