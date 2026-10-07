@@ -14,11 +14,17 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { closeBrowser } from "@/browser/manager";
+import { applyRuntimeConfig } from "@/config";
 import { registerTools } from "@/tools";
 import { parseCliArgs } from "@/utils/cli";
 import { VERSION } from "@/version";
 
-const { tools } = parseCliArgs();
+const { tools, allowDownload, allowPrivate } = parseCliArgs();
+
+const overrides: { allowDownload?: boolean; allowPrivate?: boolean } = {};
+if (allowDownload !== null) overrides.allowDownload = allowDownload;
+if (allowPrivate !== null) overrides.allowPrivate = allowPrivate;
+if (Object.keys(overrides).length > 0) applyRuntimeConfig(overrides);
 
 const server = new McpServer({
   name: "browser-mcp",

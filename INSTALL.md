@@ -75,6 +75,9 @@ bun run build
 | (none) | All tools |
 | `--tools=screenshot` | Only screenshot |
 | `--tools=screenshot,fetch_page,query` | Subset |
+| `--no-allow-download` | Fail cleanly when no system browser is found (no auto-download) |
+| `--allow-private` | Allow localhost / RFC1918 navigation (SSRF guard off) |
+| `--no-allow-private` | Keep SSRF guard on (default) |
 
 ## Environment
 
@@ -82,8 +85,10 @@ bun run build
 |----------|---------|---------|
 | `BROWSER_MCP_EXECUTABLE_PATH` | `/usr/bin/chromium` | Force browser binary |
 | `BROWSER_MCP_BROWSER` | `brave` | Prefer chrome/chromium/brave/edge |
-| `BROWSER_MCP_ALLOW_DOWNLOAD` | `0` | Disable last-resort Chrome download |
-| `BROWSER_MCP_ALLOW_PRIVATE` | `1` | Allow localhost / RFC1918 |
+| `BROWSER_MCP_ALLOW_DOWNLOAD` | `0` | Disable last-resort Chrome download (default: enabled) |
+| `BROWSER_MCP_ALLOW_PRIVATE` | `1` | Allow localhost / RFC1918 (default: blocked, SSRF guard) |
+
+Precedence: **CLI flag > env var > default**.
 
 ## Pairing with obscura-mcp
 

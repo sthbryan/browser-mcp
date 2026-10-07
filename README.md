@@ -96,6 +96,8 @@ export BROWSER_MCP_ALLOW_DOWNLOAD=0
 export BROWSER_MCP_ALLOW_PRIVATE=1
 ```
 
+`BROWSER_MCP_ALLOW_PRIVATE` defaults to `0` (blocks `localhost` / RFC1918 to prevent SSRF via prompt injection). Set to `1` for local dev. Both toggles can also be passed as CLI flags (`--allow-private` / `--no-allow-download`) and take precedence over env vars. See [INSTALL.md](./INSTALL.md).
+
 ## Release / publish
 
 CI (same pattern as obscura): on every PR/`main` push → lint, test, smoke, build.  

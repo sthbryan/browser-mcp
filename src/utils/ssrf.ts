@@ -1,3 +1,5 @@
+import { getRuntimeConfig } from "@/config";
+
 const PRIVATE_HOSTNAMES = new Set(["localhost", "0.0.0.0", "::1", "[::1]"]);
 
 function isPrivateIpv4(hostname: string): boolean {
@@ -45,7 +47,7 @@ export function assertPublicHttpUrl(url: string): void {
 }
 
 export function shouldAllowPrivate(): boolean {
-  return process.env.BROWSER_MCP_ALLOW_PRIVATE === "1";
+  return getRuntimeConfig().allowPrivate;
 }
 
 export function validateNavigationUrl(url: string): void {

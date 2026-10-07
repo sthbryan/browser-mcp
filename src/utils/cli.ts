@@ -4,7 +4,9 @@
  * Supported:
  *   --tools=screenshot,search   only register these tools
  *   --tools screenshot,search   same (space form)
- *   (no flag)                   register all tools
+ *   --allow-download            (also --no-allow-download)
+ *   --allow-private             (also --no-allow-private)
+ *   (no flag)                   register all tools, use env defaults
  */
 
 export type ToolName = "screenshot" | "fetch_page" | "query" | "search";
@@ -18,9 +20,14 @@ export const ALL_TOOLS: readonly ToolName[] = [
 
 const TOOL_SET = new Set<string>(ALL_TOOLS);
 
+/** Parsed CLI options. `null` fields defer to env/default resolution in {@link applyRuntimeConfig}. */
 export interface CliOptions {
-  /** Tools to register. null means all. */
+  /** Tools to register. `null` means all. */
   tools: ToolName[] | null;
+  /** Override {@link RuntimeConfig.allowDownload}. `null` means defer to env. */
+  allowDownload: boolean | null;
+  /** Override {@link RuntimeConfig.allowPrivate}. `null` means defer to env. */
+  allowPrivate: boolean | null;
 }
 
 function parseToolsList(raw: string): ToolName[] {
@@ -38,12 +45,14 @@ function parseToolsList(raw: string): ToolName[] {
     throw new Error(`Unknown tool(s): ${invalid.join(", ")}. Available: ${ALL_TOOLS.join(", ")}`);
   }
 
-  // de-dupe, preserve order
   return [...new Set(names)] as ToolName[];
 }
 
+/** Parse CLI argv into a {@link CliOptions} object. Unknown flags are silently ignored. */
 export function parseCliArgs(argv: string[] = process.argv.slice(2)): CliOptions {
   let tools: ToolName[] | null = null;
+  let allowDownload: boolean | null = null;
+  let allowPrivate: boolean | null = null;
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -65,12 +74,27 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): CliOptions
       }
       tools = parseToolsList(next);
       i++;
+      continue;
     }
 
-    // ignore unknown flags for now (MCP clients may inject extra args)
+    if (arg === "--allow-download") {
+      allowDownload = true;
+      continue;
+    }
+    if (arg === "--no-allow-download") {
+      allowDownload = false;
+      continue;
+    }
+    if (arg === "--allow-private") {
+      allowPrivate = true;
+      continue;
+    }
+    if (arg === "--no-allow-private") {
+      allowPrivate = false;
+    }
   }
 
-  return { tools };
+  return { tools, allowDownload, allowPrivate };
 }
 
 function printHelpAndExit(): never {
@@ -82,12 +106,15 @@ Usage:
   bunx @sthbryan/browser-mcp --tools=screenshot,fetch_page
 
 Options:
-  --tools=<list>   Comma-separated tools to register. Default: all.
-                   Available: ${ALL_TOOLS.join(", ")}
-  -h, --help       Show this help
+  --tools=<list>            Comma-separated tools to register. Default: all.
+                            Available: ${ALL_TOOLS.join(", ")}
+  --allow-download          Allow downloading Chrome as last resort (default).
+  --no-allow-download       Fail cleanly when no system browser is found.
+  --allow-private           Allow localhost / RFC1918 navigation (off by default).
+  --no-allow-private        Keep SSRF guard on (default).
+  -h, --help                Show this help
 
-Uses system Chrome/Brave/Edge (headless). Download only as last resort.
-  BROWSER_MCP_EXECUTABLE_PATH, BROWSER_MCP_BROWSER, BROWSER_MCP_ALLOW_DOWNLOAD=0
+Flags override env vars (BROWSER_MCP_ALLOW_DOWNLOAD, BROWSER_MCP_ALLOW_PRIVATE).
 `);
   process.exit(0);
 }
